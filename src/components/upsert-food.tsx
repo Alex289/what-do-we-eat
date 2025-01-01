@@ -137,7 +137,7 @@ export function UpsertFood({ existingFood }: { existingFood?: Food }) {
     }
 
     toast.success('Uploaded image');
-    form.setValue('image', result[0]!.serverData.fileUrl);
+    form.setValue('image', result[0]?.serverData.fileUrl);
   };
 
   return (

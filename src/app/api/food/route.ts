@@ -15,6 +15,9 @@ export async function GET(req: NextRequest) {
   const amount = parseInt(queries.get('amount') ?? '40') || 40;
   const search = queries.get('search') ?? '';
 
+  const cheeseometer = queries.get('cheeseometer');
+  const effort = queries.get('effort');
+
   const itemCount = await db
     .select({ count: count() })
     .from(food)
@@ -30,17 +33,13 @@ export async function GET(req: NextRequest) {
         queries.get('deliverable')
           ? eq(foods.deliverable, queries.get('deliverable') === 'true')
           : undefined,
-        queries.get('cheeseometer')
-          ? eq(foods.cheeseometer, parseInt(queries.get('cheeseometer')!))
+        cheeseometer
+          ? eq(foods.cheeseometer, parseInt(cheeseometer))
           : undefined,
-        queries.get('effort')
-          ? eq(foods.effort, parseInt(queries.get('effort')!))
-          : undefined,
+        effort ? eq(foods.effort, parseInt(effort)) : undefined,
       ),
     orderBy: (foods, { asc, desc }) => [
-      sort === 'desc'
-        ? desc(sort ? foods.name : foods.id)
-        : asc(sort ? foods.name : foods.id),
+      sort === 'desc' ? desc(foods.name) : asc(foods.name),
     ],
   });
 
@@ -63,7 +62,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: Request) {
-  const { sessionClaims, userId } = auth();
+  const { sessionClaims, userId } = await auth();
 
   if (!sessionClaims || sessionClaims.admin !== true) {
     return new Response(JSON.stringify({ message: 'Unauthorized' }), {
@@ -114,7 +113,7 @@ export async function POST(req: Request) {
   const foodCount = await db.select({ count: count() }).from(food);
   let nextAvailableId = foodCount[0]?.count ?? 1;
 
-  // eslint-disable-next-line no-constant-condition
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     const existingFood = await db.query.food.findFirst({
       where: (foods, { eq }) => eq(foods.id, nextAvailableId),

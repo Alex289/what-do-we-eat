@@ -5,7 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 
 export async function POST(req: Request) {
-  const session = auth();
+  const session = await auth();
 
   if (!session.userId) {
     return new Response(JSON.stringify({ message: 'Unauthorized' }), {

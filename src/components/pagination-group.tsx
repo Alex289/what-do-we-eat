@@ -17,7 +17,7 @@ const PaginationGroup = ({ data }: { data: PaginatedApiResponse }) => {
   const pathname = usePathname();
   const router = useRouter();
 
-  const pagesCount = data ? Math.ceil(data.data.count / data.data.pageSize) : 0;
+  const pagesCount = Math.ceil(data.data.count / data.data.pageSize);
   const firstPages = pagesCount > 1 ? [1, 2] : [1];
 
   const middlePages = useMemo(() => {
@@ -129,11 +129,9 @@ const PaginationGroup = ({ data }: { data: PaginatedApiResponse }) => {
       </Pagination>
 
       <div className="flex justify-center items-center mt-4 text-sm text-gray-500 dark:text-gray-400">
-        Items {data ? (data.data.page - 1) * data.data.pageSize + 1 : 0} -{' '}
-        {data
-          ? Math.min(data.data.page * data.data.pageSize, data.data.count)
-          : 0}{' '}
-        of {data?.data.count}
+        Items {(data.data.page - 1) * data.data.pageSize + 1} -{' '}
+        {Math.min(data.data.page * data.data.pageSize, data.data.count)} of{' '}
+        {data.data.count}
       </div>
     </>
   );

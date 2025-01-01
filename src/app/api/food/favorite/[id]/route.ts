@@ -6,12 +6,17 @@ import { and, eq, inArray } from 'drizzle-orm';
 
 export async function POST(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { sessionClaims, userId } = auth();
+  const { sessionClaims, userId } = await auth();
   const activeUser = await currentUser();
 
-  if (!sessionClaims || !activeUser || sessionClaims.admin !== true) {
+  if (
+    !sessionClaims ||
+    !activeUser ||
+    sessionClaims.admin !== true ||
+    !activeUser.emailAddresses[0]
+  ) {
     return new Response(JSON.stringify({ message: 'Unauthorized' }), {
       status: 401,
       headers: {
@@ -31,7 +36,7 @@ export async function POST(
     });
   }
 
-  const foodId = params.id;
+  const foodId = (await params).id;
 
   if (!foodId) {
     return new Response(JSON.stringify({ message: 'No food id provided' }), {
@@ -60,7 +65,7 @@ export async function POST(
 
   await db.insert(favorite).values({
     id: Number(foodId),
-    user: activeUser.emailAddresses[0]!.emailAddress,
+    user: activeUser.emailAddresses[0].emailAddress,
   });
 
   return new Response(JSON.stringify({ status: 'success' }), {
@@ -73,9 +78,9 @@ export async function POST(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { sessionClaims, userId } = auth();
+  const { sessionClaims, userId } = await auth();
   const activeUser = await currentUser();
 
   if (!sessionClaims || !activeUser || sessionClaims.admin !== true) {
@@ -98,7 +103,7 @@ export async function DELETE(
     });
   }
 
-  const foodId = params.id;
+  const foodId = (await params).id;
 
   if (!foodId) {
     return new Response(JSON.stringify({ message: 'No food id provided' }), {

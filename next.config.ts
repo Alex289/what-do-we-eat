@@ -1,13 +1,8 @@
 import { withSentryConfig } from '@sentry/nextjs';
+import { type NextConfig } from 'next';
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  experimental: {
-    instrumentationHook: true,
-  },
-  // eslint-disable-next-line @typescript-eslint/require-await
   async headers() {
     return [
       {
@@ -23,6 +18,14 @@ const nextConfig = {
         hostname: 'utfs.io',
       },
     ],
+  },
+  webpack: (config, options) => {
+    // see: https://github.com/vercel/next.js/blob/master/errors/improper-devtool.md
+    if (!options.dev) {
+      config.devtool = 'hidden-source-map';
+    }
+
+    return config;
   },
 };
 
@@ -76,16 +79,15 @@ const securityHeaders = [
   },
 ];
 
-export default withSentryConfig(
-  nextConfig,
-  {
-    silent: true,
-    org: 'alexanderkonietzko',
-    project: 'what-do-we-eat',
-
-    widenClientFileUpload: true,
-    hideSourceMaps: true,
-    disableLogger: true,
-    automaticVercelMonitors: true,
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  org: 'alexanderkonietzko',
+  project: 'what-do-we-eat',
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
   },
-);
+});

@@ -7,9 +7,9 @@ import { revalidatePath } from 'next/cache';
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { sessionClaims, userId } = auth();
+  const { sessionClaims, userId } = await auth();
 
   if (!sessionClaims || sessionClaims.admin !== true) {
     return new Response(JSON.stringify({ message: 'Unauthorized' }), {
@@ -31,7 +31,7 @@ export async function PUT(
     });
   }
 
-  const foodId = params.id;
+  const foodId = (await params).id;
   const { name, image, cheeseometer, deliverable, tags, effort } =
     (await req.json()) as {
       name: string;
@@ -42,7 +42,7 @@ export async function PUT(
       effort: number;
     };
 
-  const item = await db.query.food.findMany({
+  const item = await db.query.food.findFirst({
     where: (foods, { eq }) => eq(foods.id, Number(foodId)),
   });
 
@@ -104,9 +104,9 @@ export async function PUT(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { sessionClaims, userId } = auth();
+  const { sessionClaims, userId } = await auth();
 
   if (!sessionClaims || sessionClaims.admin !== true) {
     return new Response(JSON.stringify({ message: 'Unauthorized' }), {
@@ -128,7 +128,7 @@ export async function DELETE(
     });
   }
 
-  const foodId = params.id;
+  const foodId = (await params).id;
 
   if (!foodId) {
     return new Response(JSON.stringify({ message: 'No food id provided' }), {

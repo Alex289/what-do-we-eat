@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.0.5
+          version: 9.15.0
           run_install: false
 
       - name: Get pnpm store directory
@@ -71,6 +71,7 @@ jobs:
           POSTGRES_URL: ${{ secrets.DATABASE_URL }}
           UPSTASH_REDIS_REST_REST_API_URL: ${{ secrets.UPSTASH_REDIS_REST_REST_API_URL }}
           UPSTASH_REDIS_REST_REST_API_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_REST_API_TOKEN }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_JA=='
           SKIP_ENV_VALIDATION: true
 
       - uses: actions/cache@v4
@@ -91,12 +92,12 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 9.15.0
 
-      - name: Use Node.js 18.x
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 22.x
 
       - name: Analyze bundle
         run: pnpm add -D gzip-size@6 mkdirp && node .github/report-bundle-size.js

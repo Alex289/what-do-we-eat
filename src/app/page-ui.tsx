@@ -20,12 +20,8 @@ import type { Favorite } from '@/server/db/types';
 import type { ApiResponse, PaginatedApiResponse } from '@/types/apiResponse';
 import type { ChangeEvent } from 'react';
 
-const Food = dynamic(() => import('@/components/food'), {
-  suspense: true,
-});
-const Dialog = dynamic(() => import('@/components/filter-dialog'), {
-  suspense: true,
-});
+const Food = dynamic(() => import('@/components/food'));
+const Dialog = dynamic(() => import('@/components/filter-dialog'));
 
 export default function IndexPage({
   emailAddresses,
@@ -167,7 +163,7 @@ export default function IndexPage({
         {data?.data && favoriteData?.data && (
           <Food
             foodList={memoizedFoodList}
-            favorite={favoriteData?.data}
+            favorite={favoriteData.data}
             emailAddresses={emailAddresses}
             isAdmin={isAdmin}
           />

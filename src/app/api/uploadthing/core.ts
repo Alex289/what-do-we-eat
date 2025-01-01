@@ -10,14 +10,15 @@ const f = createUploadthing();
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: '8MB', maxFileCount: 1 } })
     .middleware(async () => {
-      const user = auth();
+      const user = await auth();
       if (!user.userId) {
         throw new UploadThingError('Unauthorized');
       }
 
-      const fullUserData = await clerkClient.users.getUser(user.userId);
+      const clerk = await clerkClient();
+      const fullUserData = await clerk.users.getUser(user.userId);
 
-      if (fullUserData?.publicMetadata?.admin !== true) {
+      if (fullUserData.publicMetadata.admin !== true) {
         throw new UploadThingError('User Does Not Have Upload Permissions');
       }
 
